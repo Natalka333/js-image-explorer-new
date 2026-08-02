@@ -11,15 +11,18 @@ import {
   clearGallery,
 } from "./render-functions.js";
 import { getImages } from "./pixabay.js";
+import { smoothScroll, smoothScrollTop } from "./scroll.js";
 
 const searchFormEl = document.querySelector(".search-form");
 const loaderEl = document.querySelector(".loader");
 const buttonEl = document.querySelector(".btn");
 const loadMoreBtn = document.querySelector(".load-more");
+const backToTopBtn = document.querySelector(".back-to-top");
 
 let query = "";
 let page = 1;
-const per_page = 20;
+const PER_PAGE = 20;
+let totalPages = 0;
 
 const lightbox = new SimpleLightbox.default(".gallery a", {
   captionsData: "alt",
@@ -35,25 +38,17 @@ const handleSearchForm = async (evt) => {
   try {
     page = 1;
     query = evt.currentTarget.elements.searchQuery.value.trim();
-    // console.log(query);
 
     if (query === "") {
       showToast("Please enter a search query.");
       return;
     }
 
-    // if (data.hits.length * page === data.totalHits) {
-    //   loadMoreBtn.classList.add("unvisible");
-    // } else {
-    //   loadMoreBtn.classList.remove("unvisible");
-    // }
-
     clearGallery();
 
-    const data = await getImages(query, page, per_page);
-    console.log(data);
-    if (!data) return;
-    if (data.hits.length === 0) {
+    const data = await getImages(query, page, PER_PAGE);
+
+    if (!data.hits.length) {
       showToast(
         "Sorry, there are no images matching your search query. Please try again!",
       );
@@ -63,12 +58,17 @@ const handleSearchForm = async (evt) => {
     const markup = createGalleryMarkup(data.hits);
 
     renderGallery(markup);
-    loadMoreBtn.classList.remove("unvisible");
+
+    totalPages = Math.ceil(data.totalHits / PER_PAGE);
+
+    if (totalPages > 1) {
+      loadMoreBtn.classList.remove("unvisible");
+    }
     lightbox.refresh();
     searchFormEl.reset();
   } catch (error) {
+    console.error(error);
     showToast("Something went wrong...");
-    return;
   } finally {
     loaderEl.classList.add("unvisible");
     buttonEl.disabled = false;
@@ -78,36 +78,45 @@ const handleSearchForm = async (evt) => {
 const handleLoadMore = async () => {
   loaderEl.classList.remove("unvisible");
   try {
-    page += 1;
+    page++;
 
-    const data = await getImages(query, page, per_page);
-
-    console.log(page);
-    console.log(per_page);
-    console.log(data.totalHits);
-    console.log(page * per_page);
+    const data = await getImages(query, page, PER_PAGE);
 
     const markup = createGalleryMarkup(data.hits);
     renderGallery(markup);
 
+    lightbox.refresh();
+    //  скрол
+    smoothScroll();
+
     if (page >= totalPages) {
-      console.log("Hide button");
       loadMoreBtn.classList.add("unvisible");
-      console.log(loadMoreBtn.className);
       showToast("We're sorry, but you've reached the end of search results.");
     }
-
-    lightbox.refresh();
   } catch (error) {
+    console.error(error);
     showToast("Something went wrong...");
-    return;
   } finally {
     loaderEl.classList.add("unvisible");
   }
 };
 
+const handleBackToTop = () => {
+  smoothScrollTop();
+};
+
 searchFormEl.addEventListener("submit", handleSearchForm);
 loadMoreBtn.addEventListener("click", handleLoadMore);
+backToTopBtn.addEventListener("click", handleBackToTop);
+
+const handleScroll = () => {
+  if (window.scrollY > 300) {
+    backToTopBtn.classList.remove("unvisible");
+  } else {
+    backToTopBtn.classList.add("unvisible");
+  }
+};
+window.addEventListener("scroll", handleScroll);
 // const localStorageKey = "favorites";
 
 // searchQuery.value = localStorage.getItem(localStorageKey) ?? "";

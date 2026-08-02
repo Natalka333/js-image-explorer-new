@@ -30,8 +30,11 @@ button {
   cursor: pointer;
 }
 .search-form {
-  width: 408px;
   padding: 24px;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  gap: 20px;
 }
 
 .form-wrap {
@@ -40,7 +43,7 @@ button {
 
 .label {
   font-weight: 400;
-  font-size: 16px;
+  font-size: 12px;
   line-height: 1.5;
   letter-spacing: 0.04em;
   color: #2e2f42;
@@ -49,7 +52,7 @@ button {
 .input {
   border: 1px solid #808080;
   border-radius: 4px;
-  width: 360px;
+  width: 300px;
   height: 40px;
   padding: 10px;
 }
@@ -61,6 +64,27 @@ button {
   height: 140px;
   resize: none;
   padding: 10px;
+}
+
+.info {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.value {
+  color: #4e75ff;
+  font-size: smaller;
+}
+.label {
+  font-size: smaller;
 }
 
 .btn {
@@ -83,7 +107,7 @@ button {
 .container {
   max-width: 428px;
   padding: 20px 15px;
-  margin: auto;
+  margin: 0 auto;
 }
 
 .gallery_link {
@@ -100,10 +124,8 @@ button {
 }
 
 @media screen and (min-width: 768px) {
-  @media screen and (min-width: 768px) {
-    .photo-card {
-      flex-basis: calc((100% - 40px) / 3);
-    }
+  .photo-card {
+    flex-basis: calc((100% - 40px) / 3);
   }
 }
 
@@ -115,7 +137,7 @@ button {
 
 @media screen and (min-width: 1200px) {
   .photo-card {
-    width: calc((100% - 60px) / 4);
+    flex-basis: calc((100% - 60px) / 4);
   }
 }
 
@@ -128,8 +150,54 @@ button {
 .gallery {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
-  gap: 12px;
+  /* justify-content: center; */
+  gap: 24px;
+}
+
+.load-more {
+  border-radius: 8px;
+  padding: 8px 16px;
+
+  background: #4e75ff;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+
+  margin-bottom: 20px;
+  border: none;
+}
+
+.load-more:hover {
+  background-color: #acb9e7;
+}
+
+.back-to-top {
+  border-radius: 8px;
+  padding: 8px 16px;
+
+  background: #4e75ff;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  margin-bottom: 30px;
+
+  margin-bottom: 20px;
+  border: none;
+}
+.back-to-top:hover {
+  background-color: #acb9e7;
 }
 
 .unvisible {
@@ -139,6 +207,7 @@ button {
 .btn:disabled {
   background-color: #acb9e7;
 }
+
 /* **************LOADER*********** */
 .loader {
   margin: 0 auto;

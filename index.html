@@ -7,27 +7,28 @@
     <!-- <link rel="stylesheet" href="./css/styles.css" /> -->
   </head>
   <body>
-    <form class="search-form">
-      <div class="form-wrap">
-        <label class="label">
-          <input
-            class="input"
-            type="text"
-            name="searchQuery"
-            autocomplete="off"
-            placeholder="Search images..."
-            autofocus
-          />
-        </label>
-      </div>
-      <button class="btn disabled" type="submit">Search</button>
-    </form>
     <div class="container">
-      <ul class="gallery"></ul>
-    </div>
-    <button class="load-more unvisible" type="button">Load more</button>
-    <div class="loader unvisible"></div>
+      <form class="search-form">
+        <div class="form-wrap">
+          <label class="label">
+            <input
+              class="input"
+              type="text"
+              name="searchQuery"
+              autocomplete="off"
+              placeholder="Search images..."
+              autofocus
+            />
+          </label>
+        </div>
+        <button class="btn disabled" type="submit">Search</button>
+      </form>
 
+      <ul class="gallery"></ul>
+      <button class="load-more unvisible" type="button">Load more</button>
+      <button class="back-to-top unvisible" type="button">Back to top</button>
+      <div class="loader unvisible"></div>
+    </div>
     <script type="module" src="/src/js/main.js"></script>
   </body>
 </html>
