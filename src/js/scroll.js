@@ -1,6 +1,7 @@
 const smoothScroll = () => {
-  const card = document.querySelector(".photo-card");
-  const cardHeight = card.getBoundingClientRect().height;
+  const cardHeight = document
+    .querySelector(".photo-card")
+    .getBoundingClientRect().height;
 
   window.scrollBy({
     top: cardHeight * 1.5,

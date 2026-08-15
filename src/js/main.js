@@ -12,17 +12,24 @@ import {
 } from "./render-functions.js";
 import { getImages } from "./pixabay.js";
 import { smoothScroll, smoothScrollTop } from "./scroll.js";
+import {
+  saveSearchQuery,
+  getSearchQuery,
+  renderSearchHistory,
+} from "./search-history.js";
 
 const searchFormEl = document.querySelector(".search-form");
 const loaderEl = document.querySelector(".loader");
 const buttonEl = document.querySelector(".btn");
 const loadMoreBtn = document.querySelector(".load-more");
 const backToTopBtn = document.querySelector(".back-to-top");
+const historyListEl = document.querySelector(".history-list");
 
 let query = "";
 let page = 1;
-const PER_PAGE = 20;
 let totalPages = 0;
+
+const PER_PAGE = 20;
 
 const lightbox = new SimpleLightbox.default(".gallery a", {
   captionsData: "alt",
@@ -30,42 +37,66 @@ const lightbox = new SimpleLightbox.default(".gallery a", {
   captionDelay: 250,
 });
 
+//Создается функция. Она принимает один параметр
+const performSearch = async (searchQuery) => {
+  query = searchQuery;
+  //Каждый новый поиск начинается с первой страницы
+  page = 1;
+  // Удаляем старые картинки
+  clearGallery();
+
+  // поиск данных
+  const data = await getImages(query, page, PER_PAGE);
+
+  if (!data.hits.length) {
+    showToast(
+      "Sorry, there are no images matching your search query. Please try again!",
+    );
+    return;
+  }
+  // Из массива объектов делаем HTML.
+  const markup = createGalleryMarkup(data.hits);
+  // Добавляем этот HTML в DOM
+  renderGallery(markup);
+  // округляет количество страниц в большую сторону
+  totalPages = Math.ceil(data.totalHits / PER_PAGE);
+
+  if (totalPages > 1) {
+    loadMoreBtn.classList.remove("unvisible");
+  }
+  //SimpleLightbox заново считывает ссылки.
+  //  Иначе новые картинки не откроются
+  lightbox.refresh();
+
+  // поиск данных
+};
+
 const handleSearchForm = async (evt) => {
+  // Не даем браузеру перезагрузить страницу.
   evt.preventDefault();
+
   loadMoreBtn.classList.add("unvisible");
+  //Отключаем кнопку, чтобы нельзя было нажать 20 раз.
   buttonEl.disabled = true;
   loaderEl.classList.remove("unvisible");
   try {
-    page = 1;
-    query = evt.currentTarget.elements.searchQuery.value.trim();
+    // Берем текст из input
+    const searchQuery = evt.currentTarget.elements.searchQuery.value.trim();
 
-    if (query === "") {
+    if (!searchQuery) {
       showToast("Please enter a search query.");
       return;
     }
 
-    clearGallery();
+    saveSearchQuery(searchQuery);
+    // console.log(searchQuery);
+    const updatedQueries = getSearchQuery();
 
-    const data = await getImages(query, page, PER_PAGE);
+    historyListEl.innerHTML = renderSearchHistory(updatedQueries);
 
-    if (!data.hits.length) {
-      showToast(
-        "Sorry, there are no images matching your search query. Please try again!",
-      );
-      return;
-    }
+    await performSearch(searchQuery);
 
-    const markup = createGalleryMarkup(data.hits);
-
-    renderGallery(markup);
-
-    totalPages = Math.ceil(data.totalHits / PER_PAGE);
-
-    if (totalPages > 1) {
-      loadMoreBtn.classList.remove("unvisible");
-    }
-    lightbox.refresh();
-    searchFormEl.reset();
+    // searchFormEl.reset();
   } catch (error) {
     console.error(error);
     showToast("Something went wrong...");
@@ -117,9 +148,25 @@ const handleScroll = () => {
   }
 };
 window.addEventListener("scroll", handleScroll);
-// const localStorageKey = "favorites";
 
-// searchQuery.value = localStorage.getItem(localStorageKey) ?? "";
-//  searchFormEl.addEventListener("input", (evt) => {
-//    localStorage.setItem("favorites", query);
-//  });
+const savedQueries = getSearchQuery();
+
+if (savedQueries.length) {
+  const lastQuery = savedQueries[savedQueries.length - 1];
+
+  searchFormEl.elements.searchQuery.value = lastQuery;
+  performSearch(lastQuery);
+}
+
+historyListEl.innerHTML = renderSearchHistory(savedQueries);
+// historyListEl.addEventListener("click", (evt) => {
+//   if (!evt.target.classList.contains("history-item")) {
+//     return;
+//   }
+
+//   const searchQuery = evt.target.textContent;
+
+//   searchFormEl.elements.searchQuery.value = searchQuery;
+
+//   performSearch(searchQuery);
+// });

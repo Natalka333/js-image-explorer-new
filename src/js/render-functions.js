@@ -15,6 +15,7 @@ const createGalleryMarkup = (images) => {
         return `
 	<li class="photo-card">
     <a class="gallery_link" href="${largeImageURL}">
+
   <img class="gallery_img" src="${webformatURL}" alt="${tags}" loading="lazy" />
   </a>
   <div class="info">
