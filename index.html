@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Explorer</title>
     <!-- <link rel="stylesheet" href="./css/styles.css" /> -->
-    <script type="module" crossorigin src="/js-image-explorer-new/assets/index-DkMIGTpP.js"></script>
-    <link rel="stylesheet" crossorigin href="/js-image-explorer-new/assets/index-D5bcmx4H.css">
+    <script type="module" crossorigin src="/js-image-explorer-new/assets/index-S13Z_ZjQ.js"></script>
+    <link rel="stylesheet" crossorigin href="/js-image-explorer-new/assets/index-B28Zjanm.css">
   </head>
   <body>
     <div class="container">
@@ -25,10 +25,15 @@
         </div>
         <button class="btn disabled" type="submit">Search</button>
       </form>
-
+      <div class="search-history">
+        <p>Recent searches:</p>
+        <ul class="history-list"></ul>
+      </div>
       <ul class="gallery"></ul>
-      <button class="load-more unvisible" type="button">Load more</button>
-      <button class="back-to-top unvisible" type="button">Back to top</button>
+      <div class="buttons">
+        <button class="load-more unvisible">Load more</button>
+        <button class="back-to-top unvisible">Back to top</button>
+      </div>
       <div class="loader unvisible"></div>
     </div>
   </body>
