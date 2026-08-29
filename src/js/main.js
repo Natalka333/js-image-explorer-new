@@ -167,16 +167,12 @@ const handleHistorySearch = (evt) => {
     return;
   }
   const searchQuery = evt.target.textContent;
+
+  document.querySelector(".history-item.active")?.classList.remove("active");
+  evt.target.classList.add("active");
+
   searchFormEl.elements.searchQuery.value = searchQuery;
   // поиск при клике по истории
   performSearch(searchQuery);
 };
 historyListEl.addEventListener("click", handleHistorySearch);
-// historyListEl.addEventListener("click", (evt) => {
-//   if (!evt.target.classList.contains("history-item")) {
-//     return;
-//   }
-//   const searchQuery = evt.target.textContent;
-//   searchFormEl.elements.searchQuery.value = searchQuery;
-//   performSearch(searchQuery);
-// });

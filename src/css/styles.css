@@ -77,7 +77,7 @@ button {
 }
 
 .btn {
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 8px 16px;
   width: 86px;
   height: 40px;
@@ -139,11 +139,12 @@ button {
 .gallery {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
+  justify-content: center;
 }
 
 .load-more {
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 8px 16px;
 
   background: #4e75ff;
@@ -167,7 +168,7 @@ button {
 }
 
 .back-to-top {
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 8px 16px;
 
   background: #4e75ff;
@@ -190,6 +191,23 @@ button {
 
 .btn:disabled {
   background-color: #acb9e7;
+}
+
+.active {
+  font-size: larger;
+  color: #4e75ff;
+}
+
+.search-history {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.history-list {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* **************LOADER*********** */
