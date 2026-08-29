@@ -39,36 +39,44 @@ const lightbox = new SimpleLightbox.default(".gallery a", {
 
 //Создается функция. Она принимает один параметр
 const performSearch = async (searchQuery) => {
-  query = searchQuery;
-  //Каждый новый поиск начинается с первой страницы
-  page = 1;
-  // Удаляем старые картинки
-  clearGallery();
+  loaderEl.classList.remove("unvisible");
 
-  // поиск данных
-  const data = await getImages(query, page, PER_PAGE);
+  try {
+    query = searchQuery;
+    //Каждый новый поиск начинается с первой страницы
+    page = 1;
+    // Удаляем старые картинки
+    clearGallery();
+    // поиск данных
+    const data = await getImages(query, page, PER_PAGE);
 
-  if (!data.hits.length) {
-    showToast(
-      "Sorry, there are no images matching your search query. Please try again!",
-    );
-    return;
+    if (!data.hits.length) {
+      showToast(
+        "Sorry, there are no images matching your search query. Please try again!",
+      );
+      return;
+    }
+    // Из массива объектов делаем HTML.
+    const markup = createGalleryMarkup(data.hits);
+    // Добавляем этот HTML в DOM
+    renderGallery(markup);
+    // округляет количество страниц в большую сторону
+    totalPages = Math.ceil(data.totalHits / PER_PAGE);
+
+    if (totalPages > 1) {
+      loadMoreBtn.classList.remove("unvisible");
+    }
+    //SimpleLightbox заново считывает ссылки.
+    //  Иначе новые картинки не откроются
+    lightbox.refresh();
+
+    searchFormEl.reset();
+  } catch (error) {
+    console.error(error);
+    showToast("Something went wrong...");
+  } finally {
+    loaderEl.classList.add("unvisible");
   }
-  // Из массива объектов делаем HTML.
-  const markup = createGalleryMarkup(data.hits);
-  // Добавляем этот HTML в DOM
-  renderGallery(markup);
-  // округляет количество страниц в большую сторону
-  totalPages = Math.ceil(data.totalHits / PER_PAGE);
-
-  if (totalPages > 1) {
-    loadMoreBtn.classList.remove("unvisible");
-  }
-  //SimpleLightbox заново считывает ссылки.
-  //  Иначе новые картинки не откроются
-  lightbox.refresh();
-
-  // поиск данных
 };
 
 const handleSearchForm = async (evt) => {
@@ -78,30 +86,24 @@ const handleSearchForm = async (evt) => {
   loadMoreBtn.classList.add("unvisible");
   //Отключаем кнопку, чтобы нельзя было нажать 20 раз.
   buttonEl.disabled = true;
-  loaderEl.classList.remove("unvisible");
+
+  // Берем текст из input
+  const searchQuery = evt.currentTarget.elements.searchQuery.value.trim();
+
+  if (!searchQuery) {
+    showToast("Please enter a search query.");
+    buttonEl.disabled = false;
+    return;
+  }
   try {
-    // Берем текст из input
-    const searchQuery = evt.currentTarget.elements.searchQuery.value.trim();
-
-    if (!searchQuery) {
-      showToast("Please enter a search query.");
-      return;
-    }
-
     saveSearchQuery(searchQuery);
-    // console.log(searchQuery);
+
     const updatedQueries = getSearchQuery();
 
     historyListEl.innerHTML = renderSearchHistory(updatedQueries);
-
+    // обычный поиск
     await performSearch(searchQuery);
-
-    // searchFormEl.reset();
-  } catch (error) {
-    console.error(error);
-    showToast("Something went wrong...");
   } finally {
-    loaderEl.classList.add("unvisible");
     buttonEl.disabled = false;
   }
 };
@@ -159,14 +161,22 @@ if (savedQueries.length) {
 }
 
 historyListEl.innerHTML = renderSearchHistory(savedQueries);
+
+const handleHistorySearch = (evt) => {
+  if (!evt.target.classList.contains("history-item")) {
+    return;
+  }
+  const searchQuery = evt.target.textContent;
+  searchFormEl.elements.searchQuery.value = searchQuery;
+  // поиск при клике по истории
+  performSearch(searchQuery);
+};
+historyListEl.addEventListener("click", handleHistorySearch);
 // historyListEl.addEventListener("click", (evt) => {
 //   if (!evt.target.classList.contains("history-item")) {
 //     return;
 //   }
-
 //   const searchQuery = evt.target.textContent;
-
 //   searchFormEl.elements.searchQuery.value = searchQuery;
-
 //   performSearch(searchQuery);
 // });

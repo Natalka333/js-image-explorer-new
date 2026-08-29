@@ -9,7 +9,6 @@ const saveSearchQuery = (query) => {
   if (!history.includes(query)) {
     history.push(query);
   }
-  console.log(history);
 
   localStorage.setItem(KEY_REQUEST, JSON.stringify(history));
 };
@@ -20,7 +19,8 @@ const getSearchQuery = () => {
   if (!savedRequest) {
     return [];
   }
-
+  // const historySavedRequest = JSON.parse(savedRequest);
+  // return historySavedRequest.slice(0, 5);
   return JSON.parse(savedRequest);
 };
 
