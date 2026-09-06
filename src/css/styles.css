@@ -185,7 +185,15 @@ button {
   border: none;
 }
 
-.unvisible {
+.load-more.unvisible {
+  display: none;
+}
+
+.back-to-top.unvisible {
+  display: none;
+}
+
+.loader.unvisible {
   display: none;
 }
 

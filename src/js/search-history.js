@@ -1,4 +1,5 @@
 const KEY_REQUEST = "local-key-last-request";
+const KEY_ACTIVE_REQUEST = "local-key-active-request";
 
 const saveSearchQuery = (query) => {
   const savedRequest = localStorage.getItem(KEY_REQUEST);
@@ -24,9 +25,13 @@ const getSearchQuery = () => {
 };
 
 const renderSearchHistory = (querys) => {
+  const activeQuery = localStorage.getItem(KEY_ACTIVE_REQUEST);
+
   return querys
     .map((query) => {
-      return `<li class="history-item">${query}</li>`;
+      const activeClass = query === activeQuery ? "active" : "";
+
+      return `<li class="history-item ${activeClass}">${query}</li>`;
     })
     .join("");
 };

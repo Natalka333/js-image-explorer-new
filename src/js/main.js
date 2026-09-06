@@ -39,6 +39,7 @@ const lightbox = new SimpleLightbox.default(".gallery a", {
 
 //Создается функция. Она принимает один параметр
 const performSearch = async (searchQuery) => {
+  loadMoreBtn.classList.add("unvisible");
   loaderEl.classList.remove("unvisible");
 
   try {
@@ -49,6 +50,10 @@ const performSearch = async (searchQuery) => {
     clearGallery();
     // поиск данных
     const data = await getImages(query, page, PER_PAGE);
+
+    // console.log(data);
+    // console.log("QUERY:", query);
+    // console.log("HITS:", data.hits);
 
     if (!data.hits.length) {
       showToast(
@@ -83,7 +88,6 @@ const handleSearchForm = async (evt) => {
   // Не даем браузеру перезагрузить страницу.
   evt.preventDefault();
 
-  loadMoreBtn.classList.add("unvisible");
   //Отключаем кнопку, чтобы нельзя было нажать 20 раз.
   buttonEl.disabled = true;
 
@@ -170,6 +174,7 @@ const handleHistorySearch = (evt) => {
 
   document.querySelector(".history-item.active")?.classList.remove("active");
   evt.target.classList.add("active");
+  localStorage.setItem("local-key-active-request", searchQuery);
 
   searchFormEl.elements.searchQuery.value = searchQuery;
   // поиск при клике по истории
