@@ -16,6 +16,8 @@ import {
   saveSearchQuery,
   getSearchQuery,
   renderSearchHistory,
+  saveActiveQuery,
+  getActiveQuery,
 } from "./search-history.js";
 
 const searchFormEl = document.querySelector(".search-form");
@@ -25,7 +27,9 @@ const loadMoreBtn = document.querySelector(".load-more");
 const backToTopBtn = document.querySelector(".back-to-top");
 const historyListEl = document.querySelector(".history-list");
 
+// текущий поисковый запрос
 let query = "";
+
 let page = 1;
 let totalPages = 0;
 
@@ -55,6 +59,7 @@ const performSearch = async (searchQuery) => {
     // console.log("QUERY:", query);
     // console.log("HITS:", data.hits);
 
+    //Если ничего не найдено
     if (!data.hits.length) {
       showToast(
         "Sorry, there are no images matching your search query. Please try again!",
@@ -68,13 +73,16 @@ const performSearch = async (searchQuery) => {
     // округляет количество страниц в большую сторону
     totalPages = Math.ceil(data.totalHits / PER_PAGE);
 
+    //Если страниц больше одной — показываем кнопку.
     if (totalPages > 1) {
       loadMoreBtn.classList.remove("unvisible");
     }
+
     //SimpleLightbox заново считывает ссылки.
     //  Иначе новые картинки не откроются
     lightbox.refresh();
 
+    //После поиска поле поиска очищается.
     searchFormEl.reset();
   } catch (error) {
     console.error(error);
@@ -84,6 +92,7 @@ const performSearch = async (searchQuery) => {
   }
 };
 
+//Она срабатывает, когда отправляется форма
 const handleSearchForm = async (evt) => {
   // Не даем браузеру перезагрузить страницу.
   evt.preventDefault();
@@ -94,18 +103,22 @@ const handleSearchForm = async (evt) => {
   // Берем текст из input
   const searchQuery = evt.currentTarget.elements.searchQuery.value.trim();
 
+  //Проверяем пустой запрос
   if (!searchQuery) {
     showToast("Please enter a search query.");
     buttonEl.disabled = false;
     return;
   }
   try {
+    //Сохраняет запрос в историю.
     saveSearchQuery(searchQuery);
 
+    // Какой запрос сейчас выбран как активный
+    saveActiveQuery(searchQuery);
+    //Берём обновлённую историю и заново рисуем список.
     const updatedQueries = getSearchQuery();
-
     historyListEl.innerHTML = renderSearchHistory(updatedQueries);
-    // обычный поиск
+    //запускаем  обычный поиск
     await performSearch(searchQuery);
   } finally {
     buttonEl.disabled = false;
@@ -116,7 +129,7 @@ const handleLoadMore = async () => {
   loaderEl.classList.remove("unvisible");
   try {
     page++;
-
+    //query был установлен внутри performSearch() query = searchQuery;
     const data = await getImages(query, page, PER_PAGE);
 
     const markup = createGalleryMarkup(data.hits);
@@ -146,6 +159,8 @@ searchFormEl.addEventListener("submit", handleSearchForm);
 loadMoreBtn.addEventListener("click", handleLoadMore);
 backToTopBtn.addEventListener("click", handleBackToTop);
 
+//Отслеживаем прокрутку
+// Если пользователь прокрутил больше 300 px
 const handleScroll = () => {
   if (window.scrollY > 300) {
     backToTopBtn.classList.remove("unvisible");
@@ -155,27 +170,43 @@ const handleScroll = () => {
 };
 window.addEventListener("scroll", handleScroll);
 
+//Вот этот блок отвечает именно за восстановление после reload:
+//Получаем всю историю запросов
 const savedQueries = getSearchQuery();
-
+//Активный запрос
+const activeQuery = getActiveQuery();
+//Проверяем: вообще есть история?
 if (savedQueries.length) {
-  const lastQuery = savedQueries[savedQueries.length - 1];
+  //Выбираем, что искать после reload
+  // проверим включает ли в сщхраненный активный запрос,
+  // «Возьми activeQuery,
+  // А ЕСЛИ его нет — возьми последний запрос из истории»
+  const queryToSearch = savedQueries.includes(activeQuery)
+    ? activeQuery
+    : savedQueries[savedQueries.length - 1];
 
-  searchFormEl.elements.searchQuery.value = lastQuery;
-  performSearch(lastQuery);
+  searchFormEl.elements.searchQuery.value = queryToSearch;
+  performSearch(queryToSearch);
 }
 
 historyListEl.innerHTML = renderSearchHistory(savedQueries);
 
+//Эта функция работает,
+// когда пользователь кликает по элементу истории.
 const handleHistorySearch = (evt) => {
+  //Проверяем, куда именно нажали
   if (!evt.target.classList.contains("history-item")) {
     return;
   }
+
   const searchQuery = evt.target.textContent;
-
+  //Если какой-то элемент уже активный — снимаем с него active.
   document.querySelector(".history-item.active")?.classList.remove("active");
+  //Теперь нажатый элемент становится активным.
   evt.target.classList.add("active");
-  localStorage.setItem("local-key-active-request", searchQuery);
-
+  //Запоминаем его в Storage
+  saveActiveQuery(searchQuery);
+  //Записываем запрос в input
   searchFormEl.elements.searchQuery.value = searchQuery;
   // поиск при клике по истории
   performSearch(searchQuery);

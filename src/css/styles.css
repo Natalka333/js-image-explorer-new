@@ -43,7 +43,7 @@ button {
 
 .label {
   font-weight: 400;
-  font-size: 12px;
+
   line-height: 1.5;
   letter-spacing: 0.04em;
   color: #2e2f42;
@@ -106,13 +106,28 @@ button {
   overflow: hidden;
 }
 
-@media screen and (min-width: 768px) {
-  .container {
-    max-width: 768px;
+@media screen and (max-width: 767px) {
+  .search-form {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .input {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .btn {
+    margin-bottom: 0;
   }
 }
 
 @media screen and (min-width: 768px) {
+  .container {
+    /* max-width: 768px; */
+    max-width: 100%;
+  }
   .photo-card {
     flex-basis: calc((100% - 40px) / 3);
   }
@@ -122,9 +137,6 @@ button {
   .container {
     max-width: 1158px;
   }
-}
-
-@media screen and (min-width: 1200px) {
   .photo-card {
     flex-basis: calc((100% - 60px) / 4);
   }
@@ -132,7 +144,8 @@ button {
 
 .gallery_img {
   display: block;
-  height: 30vh;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
 }
 
@@ -201,21 +214,56 @@ button {
   background-color: #acb9e7;
 }
 
-.active {
-  font-size: larger;
-  color: #4e75ff;
+.history-item.active {
+  color: #fff;
+  background-color: #4e75ff;
+  border-color: #4e75ff;
 }
 
 .search-history {
   display: flex;
   justify-content: center;
-  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.search-history p {
+  margin: 0;
+  color: #2e2f42;
 }
 
 .history-list {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-item {
+  padding: 5px 10px;
+  border: 1px solid #808080;
+  border-radius: 4px;
+  color: #2e2f42;
+  cursor: pointer;
+  transition:
+    color 250ms ease,
+    border-color 250ms ease,
+    background-color 250ms ease;
+}
+
+.history-item:hover {
+  color: #4e75ff;
+  border-color: #4e75ff;
+}
+
+.history-item.active {
+  color: #fff;
+  background-color: #4e75ff;
+  border-color: #4e75ff;
 }
 
 /* **************LOADER*********** */

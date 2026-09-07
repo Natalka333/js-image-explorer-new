@@ -13,6 +13,7 @@ const saveSearchQuery = (query) => {
   history = history.slice(-5);
 
   localStorage.setItem(KEY_REQUEST, JSON.stringify(history));
+  // localStorage.setItem("local-key-active-request", JSON.stringify(history));
 };
 
 const getSearchQuery = () => {
@@ -36,4 +37,18 @@ const renderSearchHistory = (querys) => {
     .join("");
 };
 
-export { saveSearchQuery, getSearchQuery, renderSearchHistory };
+const saveActiveQuery = (query) => {
+  localStorage.setItem(KEY_ACTIVE_REQUEST, query);
+};
+
+const getActiveQuery = () => {
+  return localStorage.getItem(KEY_ACTIVE_REQUEST);
+};
+
+export {
+  saveSearchQuery,
+  getSearchQuery,
+  renderSearchHistory,
+  saveActiveQuery,
+  getActiveQuery,
+};
