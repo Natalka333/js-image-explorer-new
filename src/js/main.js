@@ -64,7 +64,7 @@ const performSearch = async (searchQuery) => {
       showToast(
         "Sorry, there are no images matching your search query. Please try again!",
       );
-      return;
+      return true;
     }
     // Из массива объектов делаем HTML.
     const markup = createGalleryMarkup(data.hits);
@@ -84,9 +84,11 @@ const performSearch = async (searchQuery) => {
 
     //После поиска поле поиска очищается.
     searchFormEl.reset();
+    return true;
   } catch (error) {
     console.error(error);
     showToast("Something went wrong...");
+    return false;
   } finally {
     loaderEl.classList.add("unvisible");
   }
@@ -110,16 +112,18 @@ const handleSearchForm = async (evt) => {
     return;
   }
   try {
-    //Сохраняет запрос в историю.
-    saveSearchQuery(searchQuery);
-
-    // Какой запрос сейчас выбран как активный
-    saveActiveQuery(searchQuery);
-    //Берём обновлённую историю и заново рисуем список.
-    const updatedQueries = getSearchQuery();
-    historyListEl.innerHTML = renderSearchHistory(updatedQueries);
     //запускаем  обычный поиск
-    await performSearch(searchQuery);
+    const isSuccess = await performSearch(searchQuery);
+    if (isSuccess) {
+      //Сохраняет запрос в историю.
+      saveSearchQuery(searchQuery);
+
+      // Какой запрос сейчас выбран как активный
+      saveActiveQuery(searchQuery);
+      //Берём обновлённую историю и заново рисуем список.
+      const updatedQueries = getSearchQuery();
+      historyListEl.innerHTML = renderSearchHistory(updatedQueries);
+    }
   } finally {
     buttonEl.disabled = false;
   }
@@ -193,22 +197,33 @@ historyListEl.innerHTML = renderSearchHistory(savedQueries);
 
 //Эта функция работает,
 // когда пользователь кликает по элементу истории.
-const handleHistorySearch = (evt) => {
+const handleHistorySearch = async (evt) => {
   //Проверяем, куда именно нажали
   if (!evt.target.classList.contains("history-item")) {
     return;
   }
-
   const searchQuery = evt.target.textContent;
-  //Если какой-то элемент уже активный — снимаем с него active.
-  document.querySelector(".history-item.active")?.classList.remove("active");
-  //Теперь нажатый элемент становится активным.
-  evt.target.classList.add("active");
-  //Запоминаем его в Storage
-  saveActiveQuery(searchQuery);
-  //Записываем запрос в input
-  searchFormEl.elements.searchQuery.value = searchQuery;
-  // поиск при клике по истории
-  performSearch(searchQuery);
+
+  const isSuccess = await performSearch(searchQuery);
+
+  if (isSuccess) {
+    //Если какой-то элемент уже активный — снимаем с него active.
+    document.querySelector(".history-item.active")?.classList.remove("active");
+    //Теперь нажатый элемент становится активным.
+    evt.target.classList.add("active");
+    //Запоминаем его в Storage
+    saveActiveQuery(searchQuery);
+    //Записываем запрос в input
+    searchFormEl.elements.searchQuery.value = searchQuery;
+    // поиск при клике по истории
+  }
 };
 historyListEl.addEventListener("click", handleHistorySearch);
+
+// const intervalId = setInterval(() => {
+//   showToast("Please enter a search query.");
+// }, 1000);
+
+// setTimeout(() => {
+//   clearInterval(intervalId);
+// }, 1000);
